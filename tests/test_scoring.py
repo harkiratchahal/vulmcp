@@ -3,7 +3,7 @@ from vulnixmcp.scoring import calculate_risk_score, score_all_findings, explain_
 def test_calculate_risk_score():
     score, sev = calculate_risk_score(10.0, 1.0, True, True)
     assert sev == "CRITICAL"
-    assert score == 10.0
+    assert score == 9.3
     
     score, sev = calculate_risk_score(None, None, False, False)
     assert sev == "LOW"

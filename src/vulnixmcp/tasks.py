@@ -1,7 +1,11 @@
 import os
+from datetime import datetime, timezone
 from celery import Celery
 from vulnixmcp.database import SessionLocal
-import ssl
+from vulnixmcp.models import ScanJob, AuditLog, Asset, Finding
+from vulnixmcp.scanner import scan_target, identify_ai_components
+from vulnixmcp.vulns import get_all_vulnerabilities
+from vulnixmcp.scoring import score_all_findings
 
 redis_url = os.getenv("REDIS_URL")
 if redis_url and redis_url.startswith("rediss://") and "ssl_cert_reqs" not in redis_url:

@@ -1,8 +1,13 @@
+import os
 from vulnixmcp.server import mcp
 
 def main():
-    # Run with HTTP transport
-    mcp.run(transport="http", host="127.0.0.1", port=9000)
+    # Bind to 0.0.0.0 for remote/cloud deployment
+    mcp.run(
+        transport="http",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000)),
+    )
 
 if __name__ == "__main__":
     main()

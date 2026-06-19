@@ -9,7 +9,7 @@ RUN pip install uv
 WORKDIR /app
 
 # Copy dependency files first for caching
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock ./
 
 # Install dependencies using uv without the local package
 RUN uv sync --no-install-project
@@ -20,6 +20,8 @@ COPY . .
 # Final sync to install the project itself
 RUN uv sync
 
-# Let the host environment (like FastMCP Horizon) execute the required entry point.
-# For manual docker runs, start the MCP on stdio:
+# Expose the default server port
+EXPOSE 8000
+
+# Start the MCP server with HTTP transport
 CMD ["uv", "run", "python", "main.py"]
