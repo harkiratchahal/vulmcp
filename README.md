@@ -69,29 +69,6 @@ VulnixMCP relies on a Celery worker for processing the actual scans within the b
    uv run python main.py
    ```
 
-## Claude Desktop Configuration
-
-To use VulnixMCP directly in Claude Desktop, configure your `claude_desktop_config.json` (located at `%APPDATA%\Claude\claude_desktop_config.json` on Windows or `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS).
-
-If you are running the project inside **WSL (Windows Subsystem for Linux)**, use the following configuration:
-
-```json
-{
-  "mcpServers": {
-    "vulnixmcp": {
-      "command": "wsl.exe",
-      "args": [
-        "bash", 
-        "-ic", 
-        "cd /absolute/path/to/vulnixmcp && uv run python main.py"
-      ]
-    }
-  }
-}
-```
-
-*Note: Ensure your Celery worker is actively running in WSL while testing with Claude.*
-
 ## Usage in Claude
 
 Once configured and the worker is running, you can ask Claude Desktop:
@@ -110,3 +87,7 @@ Once configured and the worker is running, you can ask Claude Desktop:
 - **`scoring.py`**: Evaluates environmental parameters into a `0.0` - `10.0` risk score.
 - **`server.py`**: Binds the FastMCP tools for Claude over stdio.
 - **`reporter.py`**: Utilizes Jinja2 to output structured Markdown reporting.
+
+## Deployment to FastMCP Cloud
+
+To deploy this server to FastMCP Cloud/Horizon, simply ensure that your `.env` variables (Database URL, Redis URL, API keys) are configured in your Horizon project dashboard. FastMCP cloud natively detects your FastMCP instance (`mcp`) in the code when you link the repository.
