@@ -7,7 +7,10 @@ from vulnixmcp.tasks import run_scan_task
 from vulnixmcp.reporter import generate_report as run_report
 from datetime import datetime
 
-mcp = FastMCP("VulnixMCP")
+mcp = FastMCP(
+    "VulnixMCP",
+    instructions="Security scanner MCP server for AI infrastructure. Provides tools to run vulnerability scans (vulnix scan), check scan status, and generate security reports."
+)
 
 @mcp.tool()
 def full_scan(target: str, authorized_by: str, confirm: bool) -> str:
