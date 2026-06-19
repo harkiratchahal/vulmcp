@@ -8,7 +8,7 @@ from vulnixmcp.models import Base
 
 load_dotenv()
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
 
 engine = create_engine(DATABASE_URL, poolclass=NullPool)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
