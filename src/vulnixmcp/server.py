@@ -63,6 +63,9 @@ def get_scan_status(job_id: str) -> str:
     session = SessionLocal()
     try:
         job = session.query(ScanJob).filter(ScanJob.id == job_id).first()
+        if not job:
+            return "Scan job not found."
+            
         # In get_scan_status, after fetching the job:
         if job.status == "running" and job.started_at:
             elapsed = datetime.now(timezone.utc) - job.started_at.replace(tzinfo=timezone.utc)

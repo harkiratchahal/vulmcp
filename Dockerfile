@@ -1,27 +1,24 @@
 FROM python:3.11-slim
 
-# Install system dependencies, specifically Nmap
+# Install Nmap
 RUN apt-get update && apt-get install -y nmap && rm -rf /var/lib/apt/lists/*
 
-# Install uv (Python package manager)
+# Install uv
 RUN pip install uv
+
+# Tell uv to install into system Python, not a venv
+ENV UV_SYSTEM_PYTHON=1
 
 WORKDIR /app
 
-# Copy dependency files first for caching
+# Copy lockfile first — layer cache only busts on dependency changes
 COPY pyproject.toml uv.lock ./
+RUN uv sync --no-install-project --frozen
 
-# Install dependencies using uv without the local package
-RUN uv sync --no-install-project
-
-# Copy the rest of the application code
+# Copy source and install project itself
 COPY . .
+RUN uv sync --frozen
 
-# Final sync to install the project itself
-RUN uv sync
-
-# Expose the default server port
 EXPOSE 8000
 
-# Start the MCP server with HTTP transport
 CMD ["uv", "run", "python", "main.py"]
