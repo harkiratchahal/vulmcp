@@ -153,3 +153,60 @@ def list_scans(limit: int = 10) -> str:
         return "\n".join(lines)
     finally:
         session.close()
+
+@mcp.tool()
+def scan_installed_packages() -> str:
+    """
+    Scan Python packages installed in this environment for CVEs.
+    No network scanning needed — queries OSV.dev for every installed package.
+    """
+    import importlib.metadata
+    from vulnixmcp.vulns import query_osv, get_epss_scores, check_kev
+    from vulnixmcp.scoring import calculate_risk_score, explain_score
+
+    packages = [
+        {"name": dist.metadata["Name"], "version": dist.metadata["Version"]}
+        for dist in importlib.metadata.distributions()
+        if dist.metadata.get("Name") and dist.metadata.get("Version")
+    ]
+
+    findings = []
+    for pkg in packages:
+        osv_results = query_osv(pkg["name"], pkg["version"])
+        for vuln in osv_results:
+            cves = [a for a in vuln.get("aliases", []) if a.startswith("CVE-")]
+            for cve in cves:
+                findings.append({
+                    "cve_id": cve,
+                    "package": pkg["name"],
+                    "version": pkg["version"],
+                    "description": vuln.get("summary", ""),
+                    "cvss_score": None,
+                    "epss_score": None,
+                    "is_kev": False,
+                    "asset": {"is_public": True}
+                })
+
+    if not findings:
+        return f"Scanned {len(packages)} packages. No CVEs found."
+
+    # Enrich with EPSS + KEV
+    cve_ids = [f["cve_id"] for f in findings]
+    epss = get_epss_scores(cve_ids)
+    kev = check_kev()
+
+    lines = [f"Scanned {len(packages)} packages. Found {len(findings)} CVEs:\n"]
+    for f in findings:
+        f["epss_score"] = epss.get(f["cve_id"], {}).get("epss", 0.0)
+        f["is_kev"] = f["cve_id"] in kev
+        score, severity = calculate_risk_score(
+            f["cvss_score"], f["epss_score"], f["is_kev"], True
+        )
+        f["risk_score"] = score
+        f["severity"] = severity
+        lines.append(
+            f"[{severity}] {f['cve_id']} — {f['package']}=={f['version']}\n"
+            f"  {explain_score(f)}\n"
+        )
+
+    return "\n".join(lines)
