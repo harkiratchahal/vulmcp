@@ -21,7 +21,7 @@ def scan_target(target: str) -> list[dict]:
     nm = nmap.PortScanner()
     ports_str = ",".join(str(p) for p in PORT_TO_COMPONENT.keys())
     
-    nm.scan(target, arguments=f"-p {ports_str} -sV -T4 --open")
+    nm.scan(target, arguments=f"-p {ports_str} -sV --version-intensity 2 -T4 --open --host-timeout 60s")
     
     results = []
     

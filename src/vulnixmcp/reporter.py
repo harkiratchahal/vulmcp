@@ -6,7 +6,11 @@ REPORT_TEMPLATE = """
 # VulnixMCP Security Report
 
 ## Scan Authorization
+{% if audit %}
 Authorized by: {{ audit.detail }} at {{ audit.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+{% else %}
+Authorization record not available.
+{% endif %}
 
 ## Target
 {{ job.target }}
