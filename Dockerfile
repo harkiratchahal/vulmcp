@@ -19,6 +19,6 @@ RUN uv sync --no-install-project --frozen
 COPY . .
 RUN uv sync --frozen
 
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["uv", "run", "python", "main.py"]
